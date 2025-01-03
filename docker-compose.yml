@@ -1,4 +1,3 @@
-
 services:
   app:
     build: .
@@ -16,10 +15,11 @@ services:
     ports:
       - "5060:5060/udp"
     volumes:
-      - ./audio:/var/www/html/audio  # Mantenha este volume
+      - ./cfg:/usr/local/etc/opensips
+      - ./audio:/var/www/html/audio
     depends_on:
       - app
-      - rtpengine
+      - rtpengine  # Adiciona dependência do rtpengine
     command: opensips -f /usr/local/etc/opensips/opensips.cfg
     networks:
       - internal-network
