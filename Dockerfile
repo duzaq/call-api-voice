@@ -10,6 +10,11 @@ COPY requirements.txt .
 # Instalar as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Criar os diretórios necessários
+RUN mkdir -p /app/audio
+RUN mkdir -p /app/cfg
+RUN mkdir -p /app/nginx
+
 # Copiar o código-fonte para o contêiner
 COPY . .
 
