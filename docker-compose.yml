@@ -6,8 +6,8 @@ services:
     ports:
       - "5060:5060"
     volumes:
-      - .:/app
-      - ./audio:/app/audio # Montar o diretório de áudios para o contêiner do app
+      - .:/app  # Montar a raiz do projeto em /app
+      - ./audio:/app/audio
     env_file:
       - .env
     command: python app.py
@@ -17,7 +17,7 @@ services:
     ports:
       - "5060:5060/udp"
     volumes:
-      - ./cfg:/usr/local/etc/opensips  # Confirme se esta linha está correta
+      - ./cfg:/usr/local/etc/opensips
       - ./audio:/var/www/html/audio
     depends_on:
       - app
@@ -26,7 +26,7 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "8081:80"  # Porta alterada para 8081 (ou outra porta livre)
+      - "8081:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./audio:/var/www/html/audio
