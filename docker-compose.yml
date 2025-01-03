@@ -37,7 +37,7 @@ services:
       - internal-network
 
   rtpengine:
-    image: sipwise/rtpengine:latest  # Recomendado: imagem oficial
+    image: drachtio/rtpengine:latest  # Recomendado: imagem oficial
     ports:
       - "2222:2222/udp"
     # volumes:  # Remova esta linha se não usar um arquivo de configuração personalizado
