@@ -16,15 +16,21 @@ DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 async def transcribe_audio(audio_url):
-    deepgram = Deepgram(DEEPGRAM_API_KEY)
-    source = {'url': audio_url}
-    response = await deepgram.transcription.prerecorded(source, {'punctuate': True})
-    return response['results']['channels'][0]['alternatives'][0]['transcript']
+    try:
+        deepgram = Deepgram(DEEPGRAM_API_KEY)
+        source = {'url': audio_url}
+        print(f"Transcrevendo áudio da URL: {audio_url}")  # Log para depuração
+        response = await deepgram.transcription.prerecorded(source, {'punctuate': True})
+        print(f"Resposta da Deepgram: {response}")  # Log para depuração
+        return response['results']['channels'][0]['alternatives'][0]['transcript']
+    except Exception as e:
+        print(f"Erro ao transcrever áudio: {e}")  # Log para depuração
+        return ""
 
 def generate_response(prompt):
     openai.api_key = OPENAI_API_KEY
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # Usando o modelo gpt-3.5-turbo
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "Você é um assistente útil."},
             {"role": "user", "content": prompt}
