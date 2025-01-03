@@ -7,6 +7,28 @@ services:
       - "5060:5060"
     volumes:
       - .:/app
+      - ./audio:/app/audio # Montar o diretório de áudios para o contêiner do app
     env_file:
-      - .env  # Carregar variáveis de ambiente do arquivo .env
+      - .env
     command: python app.py
+
+  opensips:
+    image: opensips/opensips:3.3
+    ports:
+      - "5060:5060/udp"
+    volumes:
+      - ./cfg:/usr/local/etc/opensips
+      - ./audio:/var/www/html/audio # <----
+    depends_on:
+      - app
+    command: opensips -f /usr/local/etc/opensips/opensips.cfg
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./audio:/var/www/html/audio  # Montar o diretório de áudios para o contêiner do Nginx
+    depends_on:
+      - app
