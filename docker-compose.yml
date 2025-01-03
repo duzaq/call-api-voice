@@ -17,8 +17,8 @@ services:
     ports:
       - "5060:5060/udp"
     volumes:
-      - ./cfg:/usr/local/etc/opensips
-      - ./audio:/var/www/html/audio # <----
+      - ./cfg:/usr/local/etc/opensips  # Verifique esta linha!
+      - ./audio:/var/www/html/audio
     depends_on:
       - app
     command: opensips -f /usr/local/etc/opensips/opensips.cfg
