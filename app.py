@@ -1,10 +1,10 @@
 import asyncio
 import os
 import logging
+import tempfile
 
 import aiohttp
 from flask import Flask, request, jsonify
-from deepgram import Deepgram
 from gtts import gTTS
 from dotenv import load_dotenv
 import openai
@@ -18,20 +18,35 @@ load_dotenv()
 app = Flask(__name__)
 
 # Carregar chaves de API
-DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-# Função auxiliar para transcrição de áudio com Deepgram
-async def _transcribe_audio_deepgram(audio_url):
+# Função auxiliar para transcrição de áudio com OpenAI Whisper
+async def _transcribe_audio_openai(audio_url):
     try:
-        deepgram = Deepgram(DEEPGRAM_API_KEY)
-        source = {'url': audio_url}
-        response = await deepgram.transcription.prerecorded(source, {'punctuate': True})
-        transcript = response['results']['channels'][0]['alternatives'][0]['transcript']
-        logging.info(f"Transcrição Deepgram: {transcript}")
-        return transcript
+        async with aiohttp.ClientSession() as session:
+            # Baixar o arquivo de áudio
+            async with session.get(audio_url) as response:
+                response.raise_for_status()  # Lançar exceção para erros HTTP
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_audio_file:
+                    temp_audio_file.write(await response.read())
+                    temp_audio_file_path = temp_audio_file.name
+
+            # Transcrever o áudio com Whisper
+            with open(temp_audio_file_path, 'rb') as audio_file:
+                openai.aiosession.set(session)
+                transcript = await openai.Audio.atranscribe("whisper-1", audio_file)
+
+            # Remover o arquivo temporário
+            os.remove(temp_audio_file_path)
+
+            logging.info(f"Transcrição OpenAI (Whisper): {transcript.text}")
+            return transcript.text
+
+    except aiohttp.ClientError as e:
+        logging.error(f"Erro ao baixar o áudio: {e}")
+        raise
     except Exception as e:
-        logging.error(f"Erro na transcrição Deepgram: {e}")
+        logging.error(f"Erro na transcrição OpenAI (Whisper): {e}")
         raise
 
 # Função auxiliar para geração de resposta com OpenAI (agora assíncrona)
@@ -66,7 +81,7 @@ async def _text_to_speech_gtts(text, output_file='output.mp3'):
         except Exception as e:
             logging.error(f"Erro na conversão de texto para áudio com gTTS: {e}")
             raise
-    
+
     # Executar a operação de I/O em um thread separado para não bloquear o loop de eventos
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, _save_audio)
@@ -98,8 +113,8 @@ async def handle_call():
     logging.info(f"Chamada recebida de {caller} para {callee}, áudio: {audio_url}")
 
     try:
-        # Transcrever áudio
-        transcription = await _transcribe_audio_deepgram(audio_url)
+        # Transcrever áudio usando Whisper
+        transcription = await _transcribe_audio_openai(audio_url)
 
         # Gerar resposta
         response_text = await _generate_response_openai(transcription)
