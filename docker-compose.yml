@@ -37,7 +37,7 @@ services:
       - internal-network
 
   rtpengine:
-    image: opensips/rtpengine:latest # Use a imagem oficial do rtpengine
+    image: sipwise/rtpengine:latest  # Use a imagem oficial do rtpengine
     ports:
       - "2222:2222/udp"  # Exponha a porta do rtpengine (se necessário)
     volumes:
