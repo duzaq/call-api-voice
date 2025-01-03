@@ -1,6 +1,7 @@
 import asyncio
 import os
 import logging
+import uuid
 
 import aiohttp
 from flask import Flask, request, jsonify
@@ -60,13 +61,15 @@ async def _text_to_speech_gtts(text, output_file='output.mp3'):
     def _save_audio():
         try:
             tts = gTTS(text=text, lang='pt')
-            tts.save(output_file)
-            logging.info(f"Áudio salvo em: {output_file}")
-            return output_file
+            # Caminho absoluto para salvar o arquivo de áudio
+            save_path = os.path.join("/app/audio", output_file)  # Salvando no diretório /app/audio
+            tts.save(save_path)
+            logging.info(f"Áudio salvo em: {save_path}")
+            return output_file  # Retornar apenas o nome do arquivo, não o caminho completo
         except Exception as e:
             logging.error(f"Erro na conversão de texto para áudio com gTTS: {e}")
             raise
-    
+
     # Executar a operação de I/O em um thread separado para não bloquear o loop de eventos
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, _save_audio)
@@ -105,17 +108,19 @@ async def handle_call():
         response_text = await _generate_response_openai(transcription)
 
         # Converter resposta em áudio
-        audio_file = await _text_to_speech_gtts(response_text)
+        # Gera um nome de arquivo único para o áudio de resposta
+        unique_id = str(uuid.uuid4())
+        response_audio_filename = f"response-{unique_id}.mp3"
 
-        # Roteamento de chamada
-        routing_response = route_call(caller, callee)
+        # audio_file agora é apenas o nome do arquivo, pois ele será salvo em /app/audio
+        audio_file = await _text_to_speech_gtts(response_text, response_audio_filename)
 
-        # Retornar resposta
+        # Modificar o retorno para incluir o URL do áudio de resposta
         return jsonify({
             "status": "processed",
             "transcription": transcription,
             "response": response_text,
-            "audio_file": audio_file,
+            "audio_file": f"http://nginx/audio/{audio_file}", # Usando 'nginx' como hostname (nome do serviço no docker-compose)
             "routing_response": routing_response
         })
 
