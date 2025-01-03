@@ -61,11 +61,11 @@ async def _text_to_speech_gtts(text, output_file='output.mp3'):
     def _save_audio():
         try:
             tts = gTTS(text=text, lang='pt')
-            # Caminho absoluto para salvar o arquivo de áudio
-            save_path = os.path.join("/app/audio", output_file)  # Salvando no diretório /app/audio
+            # Usar um caminho relativo para salvar no diretório montado 'audio'
+            save_path = os.path.join("audio", output_file)
             tts.save(save_path)
             logging.info(f"Áudio salvo em: {save_path}")
-            return output_file  # Retornar apenas o nome do arquivo, não o caminho completo
+            return output_file  # Retornar apenas o nome do arquivo
         except Exception as e:
             logging.error(f"Erro na conversão de texto para áudio com gTTS: {e}")
             raise
@@ -112,7 +112,7 @@ async def handle_call():
         unique_id = str(uuid.uuid4())
         response_audio_filename = f"response-{unique_id}.mp3"
 
-        # audio_file agora é apenas o nome do arquivo, pois ele será salvo em /app/audio
+        # audio_file agora é apenas o nome do arquivo
         audio_file = await _text_to_speech_gtts(response_text, response_audio_filename)
 
         # Modificar o retorno para incluir o URL do áudio de resposta
@@ -120,7 +120,7 @@ async def handle_call():
             "status": "processed",
             "transcription": transcription,
             "response": response_text,
-            "audio_file": f"http://nginx/audio/{audio_file}", # Usando 'nginx' como hostname (nome do serviço no docker-compose)
+            "audio_file": f"http://nginx/audio/{audio_file}",
             "routing_response": routing_response
         })
 
