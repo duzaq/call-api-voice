@@ -4,11 +4,16 @@ import asyncio
 import openai
 from gtts import gTTS
 import os
+from dotenv import load_dotenv  # Importar para carregar o .env
+
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
 
 app = Flask(__name__)
 
-DEEPGRAM_API_KEY = ''
-OPENAI_API_KEY = ''
+# Carregar chaves de API do ambiente
+DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 async def transcribe_audio(audio_url):
     deepgram = Deepgram(DEEPGRAM_API_KEY)
@@ -71,4 +76,4 @@ def handle_call():
     })
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5060)
+    app.run(host='0.0.0.0', port=int(os.getenv('FLASK_RUN_PORT', 5060)))
