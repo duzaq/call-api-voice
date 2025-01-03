@@ -11,7 +11,7 @@ services:
     command: python app.py
 
   opensips:
-    image: opensips/opensips:latest
+    image: opensips/opensips:2.2
     ports:
       - "5060:5060/udp"
     volumes:
