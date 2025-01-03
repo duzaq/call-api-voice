@@ -38,7 +38,7 @@ services:
       - internal-network
 
   rtpengine:
-    image: omnileads/rtpengine:latest  # Use a imagem oficial do rtpengine
+    image: drachtio/rtpengine:latest  # Use a imagem oficial do rtpengine
     ports:
       - "2222:2222/udp"  # Exponha a porta do rtpengine (se necessário)
     volumes:
