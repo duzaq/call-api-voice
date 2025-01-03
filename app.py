@@ -59,6 +59,8 @@ def handle_call():
     callee = data.get('callee')
     audio_url = data.get('audio_url')
 
+    print(f"Iniciando transcrição do áudio: {audio_url}")  # Log para depuração
+
     # Transcrever áudio
     transcription = asyncio.run(transcribe_audio(audio_url))
     print(f"Transcrição: {transcription}")
