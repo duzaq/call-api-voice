@@ -12,8 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Criar os diretórios necessários
 RUN mkdir -p /app/audio /usr/local/etc/opensips
-# Instalar módulos necessários
-RUN opensips-cli -x module install sl tm rr maxfwd textops sipmsgops xlog sanity ctl mi_fifo acc dialog dispatcher rtpengine 
+
 # Copiar o arquivo de configuração do OpenSIPS
 COPY cfg/opensips.cfg /usr/local/etc/opensips/opensips.cfg
 
