@@ -1,3 +1,4 @@
+
 services:
   app:
     build: .
@@ -19,7 +20,7 @@ services:
       - ./audio:/var/www/html/audio
     depends_on:
       - app
-      - rtpengine
+      - rtpengine  # Adiciona dependência do rtpengine
     command: opensips -f /usr/local/etc/opensips/opensips.cfg
     networks:
       - internal-network
@@ -37,17 +38,17 @@ services:
       - internal-network
 
   rtpengine:
-    image: sipwise/rtpengine:latest  # Recomendado: imagem oficial
+    image: drachtio/rtpengine:latest  # Use a imagem oficial do rtpengine
     ports:
-      - "2222:2222/udp"
-    # volumes:  # Remova esta linha se não usar um arquivo de configuração personalizado
-    #   - ./rtpengine:/etc/rtpengine
-    depends_on: # Adicionando dependências para o rtpengine
-      - app
-      - nginx
+      - "2222:2222/udp"  # Exponha a porta do rtpengine (se necessário)
+    volumes:
+      - ./rtpengine:/etc/rtpengine # Montar um diretório para arquivos de configuração do rtpengine (opcional)
+    # Se você não tiver um arquivo de configuração personalizado, você pode remover a linha 'volumes'
     networks:
       - internal-network
+    # Configurações adicionais, como limites de recursos, podem ser adicionadas aqui
 
+# Rede para comunicação interna entre os contêineres
 networks:
   internal-network:
     driver: bridge
