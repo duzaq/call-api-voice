@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   app:
@@ -7,6 +7,6 @@ services:
       - "5060:5060"
     volumes:
       - .:/app
-    environment:
-      - FLASK_ENV=development
+    env_file:
+      - .env  # Carregar variáveis de ambiente do arquivo .env
     command: python app.py
