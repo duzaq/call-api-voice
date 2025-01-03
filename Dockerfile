@@ -23,4 +23,5 @@ COPY app.py .
 EXPOSE 5060
 
 # Comando para rodar o aplicativo
+CMD ["opensips", "-f", "/usr/local/etc/opensips/opensips.cfg"]
 CMD ["python", "app.py"]
