@@ -4,7 +4,7 @@ import asyncio
 import openai
 from gtts import gTTS
 import os
-from dotenv import load_dotenv  # Importar para carregar o .env
+from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -23,12 +23,15 @@ async def transcribe_audio(audio_url):
 
 def generate_response(prompt):
     openai.api_key = OPENAI_API_KEY
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # Usando o modelo gpt-3.5-turbo
+        messages=[
+            {"role": "system", "content": "Você é um assistente útil."},
+            {"role": "user", "content": prompt}
+        ],
         max_tokens=150
     )
-    return response.choices[0].text.strip()
+    return response['choices'][0]['message']['content'].strip()
 
 def text_to_speech(text, output_file='output.mp3'):
     tts = gTTS(text=text, lang='pt')
