@@ -12,11 +12,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Criar os diretórios necessários
 RUN mkdir -p /app/audio
-RUN mkdir -p /app/cfg
-RUN mkdir -p /app/nginx
 
-# Copiar o código-fonte para o contêiner
-COPY . .
+# Não precisamos mais criar /app/cfg e /app/nginx, pois eles serão montados
+
+# Copiar o código-fonte para o contêiner (agora copia o app.py da raiz)
+COPY app.py .
 
 # Expor a porta que o Flask vai usar
 EXPOSE 5060
